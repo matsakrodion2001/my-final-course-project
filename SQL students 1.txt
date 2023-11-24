@@ -1,0 +1,29 @@
+SELECT 
+    SUM(money) / CountCorrect as ARPAU,
+    SUM(money) / COUNT(DISTINCT l.st_id) as ARPU,
+    COUNT(DISTINCT l.st_id) / COUNT(DISTINCT r.st_id) * 100 as cr_purchase,
+    CountCorrect / COUNT(DISTINCT r.st_id) * 100 as cr_active,
+    COUNT(CASE WHEN correct = '1' AND l.subject = 'Math' THEN 1 ELSE 0 END) / COUNT(DISTINCT l.st_id) as cr_math
+FROM    
+    (
+    SELECT COUNT(DISTINCT l.st_id) as CountCorrect, money, l.st_id, r.st_id, f.test_grp, l.subject, correct
+    FROM
+    (
+        SELECT l.st_id,
+            money,
+            correct,
+            r.st_id,
+            f.test_grp,
+            l.subject,
+            r.st_id,
+            f.test_grp,
+            l.subject
+        FROM default.peas as l
+        left JOIN default.final_project_check as r ON l.st_id = r.st_id
+        left JOIN default.studs as f ON l.st_id = f.st_id
+    )
+    WHERE correct = '1'
+    GROUP BY l.st_id, money, r.st_id, f.test_grp, l.subject, correct
+    HAVING COUNT(*) > 10
+    )
+GROUP BY CountCorrect, f.test_grp

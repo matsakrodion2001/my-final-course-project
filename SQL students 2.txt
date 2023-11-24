@@ -1,0 +1,9 @@
+SELECT COUNT(*) as userdnye_students
+FROM(
+    SELECT COUNT(DISTINCT st_id) AS count_students
+    FROM default.peas
+    WHERE correct = 1
+      AND EXTRACT(MONTH FROM timest) = 10
+    GROUP BY st_id
+    HAVING COUNT(*) >= 20
+    )
